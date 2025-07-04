@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Controllers;
 
 use App\Models\TransactionModel;
@@ -8,20 +9,22 @@ use App\Models\TransactionDetailModel;
 class TransaksiController extends BaseController
 {
     protected $cart;
+    // Tahapan  1
     protected $client;
-    protected $apikey;
-    protected $transaction;
-    protected $transaction_detail;
+    protected $apiKey;
+    protected $transactionModel;
+    protected $transactionDetailModel;
 
     function __construct()
     {
         helper('number');
         helper('form');
         $this->cart = \Config\Services::cart();
+        // Tahapan 1
         $this->client = new \GuzzleHttp\Client();
         $this->apiKey = env('COST_KEY');
-        $this->transaction = new TransactionModel();
-        $this->transaction_detail = new TransactionDetailModel();
+        $this->transactionModel = new TransactionModel();
+        $this->transactionDetailModel = new TransactionDetailModel();
     }
 
     public function index()
@@ -33,14 +36,37 @@ class TransaksiController extends BaseController
 
     public function cart_add()
     {
+        $hargaAsli = $this->request->getPost('harga');
+        $diskonNominal = session()->get('diskon_nominal') ?: 0;
+        
+        // Hitung harga setelah diskon
+        $hargaSetelahDiskon = $hargaAsli - $diskonNominal;
+        
+        // Pastikan harga tidak negatif
+        if ($hargaSetelahDiskon < 0) {
+            $hargaSetelahDiskon = 0;
+        }
+
         $this->cart->insert(array(
             'id'        => $this->request->getPost('id'),
             'qty'       => 1,
-            'price'     => $this->request->getPost('harga'),
+            'price'     => $hargaSetelahDiskon, // Gunakan harga setelah diskon
             'name'      => $this->request->getPost('nama'),
-            'options'   => array('foto' => $this->request->getPost('foto'))
+            'options'   => array(
+                'foto' => $this->request->getPost('foto'),
+                'harga_asli' => $hargaAsli, // Simpan harga asli untuk referensi
+                'diskon' => $diskonNominal, // Simpan nominal diskon
+                'harga_setelah_diskon' => $hargaSetelahDiskon
+            )
         ));
-        session()->setflashdata('success', 'Produk berhasil ditambahkan ke keranjang. (<a href="' . base_url() . 'keranjang">Lihat</a>)');
+
+        $pesan = 'Produk berhasil ditambahkan ke keranjang.';
+        if ($diskonNominal > 0) {
+            $pesan .= ' Anda mendapat diskon ' . number_to_currency($diskonNominal, 'IDR') . '!';
+        }
+        $pesan .= ' (<a href="' . base_url() . 'keranjang">Lihat</a>)';
+
+        session()->setflashdata('success', $pesan);
         return redirect()->to(base_url('/'));
     }
 
@@ -72,7 +98,7 @@ class TransaksiController extends BaseController
         return redirect()->to(base_url('keranjang'));
     }
 
-    public function checkout()
+    public function checkout() // Tambahan 1
     {
         $data['items'] = $this->cart->contents();
         $data['total'] = $this->cart->total();
@@ -80,14 +106,16 @@ class TransaksiController extends BaseController
         return view('v_checkout', $data);
     }
 
-        public function getLocation()
+    // Tahapan 1
+    public function getLocation()
     {
-            //keyword pencarian yang dikirimkan dari halaman checkout
+        //keyword pencarian yang dikirimkan dari halaman checkout
         $search = $this->request->getGet('search');
 
         $response = $this->client->request(
-            'GET', 
-            'https://rajaongkir.komerce.id/api/v1/destination/domestic-destination?search='.$search.'&limit=50', [
+            'GET',
+            'https://rajaongkir.komerce.id/api/v1/destination/domestic-destination?search=' . $search . '&limit=50',
+            [
                 'headers' => [
                     'accept' => 'application/json',
                     'key' => $this->apiKey,
@@ -95,20 +123,21 @@ class TransaksiController extends BaseController
             ]
         );
 
-        $body = json_decode($response->getBody(), true); 
+        $body = json_decode($response->getBody(), true);
         return $this->response->setJSON($body['data']);
     }
 
     public function getCost()
-    { 
-            //ID lokasi yang dikirimkan dari halaman checkout
+    {
+        //ID lokasi yang dikirimkan dari halaman checkout
         $destination = $this->request->getGet('destination');
 
-            //parameter daerah asal pengiriman, berat produk, dan kurir dibuat statis
+        //parameter daerah asal pengiriman, berat produk, dan kurir dibuat statis
         //valuenya => 64999 : PEDURUNGAN TENGAH , 1000 gram, dan JNE
         $response = $this->client->request(
-            'POST', 
-            'https://rajaongkir.komerce.id/api/v1/calculate/domestic-cost', [
+            'POST',
+            'https://rajaongkir.komerce.id/api/v1/calculate/domestic-cost',
+            [
                 'multipart' => [
                     [
                         'name' => 'origin',
@@ -134,13 +163,13 @@ class TransaksiController extends BaseController
             ]
         );
 
-        $body = json_decode($response->getBody(), true); 
+        $body = json_decode($response->getBody(), true);
         return $this->response->setJSON($body['data']);
     }
 
     public function buy()
     {
-        if ($this->request->getPost()) { 
+        if ($this->request->getPost()) {
             $dataForm = [
                 'username' => $this->request->getPost('username'),
                 'total_harga' => $this->request->getPost('total_harga'),
@@ -151,26 +180,39 @@ class TransaksiController extends BaseController
                 'updated_at' => date("Y-m-d H:i:s")
             ];
 
-            $this->transaction->insert($dataForm);
+            $this->transactionModel->insert($dataForm);
 
-            $last_insert_id = $this->transaction->getInsertID();
+            $last_insert_id = $this->transactionModel->getInsertID();
+
+            // Ambil nominal diskon dari session
+            $diskonNominal = session()->get('diskon_nominal') ?: 0;
 
             foreach ($this->cart->contents() as $value) {
+                // Hitung subtotal dengan harga yang sudah didiskon
+                $subtotalHarga = $value['qty'] * $value['price'];
+
                 $dataFormDetail = [
                     'transaction_id' => $last_insert_id,
                     'product_id' => $value['id'],
                     'jumlah' => $value['qty'],
-                    'diskon' => 0,
-                    'subtotal_harga' => $value['qty'] * $value['price'],
+                    'diskon' => $diskonNominal, // Simpan nominal diskon per item
+                    'subtotal_harga' => $subtotalHarga, // Subtotal sudah termasuk diskon
                     'created_at' => date("Y-m-d H:i:s"),
                     'updated_at' => date("Y-m-d H:i:s")
                 ];
 
-                $this->transaction_detail->insert($dataFormDetail);
+                $this->transactionDetailModel->insert($dataFormDetail);
             }
 
             $this->cart->destroy();
-    
+
+            // Set pesan sukses dengan informasi diskon
+            if ($diskonNominal > 0) {
+                session()->setFlashdata('success', 'Transaksi berhasil! Anda telah mendapat diskon ' . number_to_currency($diskonNominal, 'IDR') . ' per item.');
+            } else {
+                session()->setFlashdata('success', 'Transaksi berhasil!');
+            }
+
             return redirect()->to(base_url());
         }
     }

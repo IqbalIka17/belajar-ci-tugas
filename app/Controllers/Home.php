@@ -3,44 +3,54 @@
 namespace App\Controllers;
 
 use App\Models\ProductModel;
+// Tahapan 2
 use App\Models\TransactionDetailModel;
-use App\Models\TransactionModel; 
+use App\Models\TransactionModel;
 
 class Home extends BaseController
 {
     protected $product;
-    protected $transaction;
-    protected $transaction_detail;
+    // Tahapan 2
+    protected $transactionModel;
+    protected $transactionDetailModel;
 
     function __construct()
     {
-        helper('form');
         helper('number');
+        helper('form');
         $this->product = new ProductModel();
-        $this->transaction = new TransactionModel();
-        $this->transaction_detail = new TransactionDetailModel();
+        // Tahapan 2
+        $this->transactionModel = new TransactionModel();
+        $this->transactionDetailModel = new TransactionDetailModel();
     }
 
     public function index()
     {
         $product = $this->product->findAll();
         $data['product'] = $product;
+
         return view('v_home', $data);
     }
 
+    public function faq()
+    {
+        return view('v_faq');
+    }
+
+    // Tahapan 2
     public function profile()
     {
         $username = session()->get('username');
         $data['username'] = $username;
-     
-        $buy = $this->transaction->where('username', $username)->findAll();
+
+        $buy = $this->transactionModel->where('username', $username)->findAll();
         $data['buy'] = $buy;
 
         $product = [];
 
         if (!empty($buy)) {
             foreach ($buy as $item) {
-                $detail = $this->transaction_detail->select('transaction_detail.*, product.nama, product.harga, product.foto')->join('product', 'transaction_detail.product_id=product.id')->where('transaction_id', $item['id'])->findAll();
+                $detail = $this->transactionDetailModel->select('transaction_detail.*, product.nama, product.harga, product.foto')->join('product', 'transaction_detail.product_id=product.id')->where('transaction_id', $item['id'])->findAll();
 
                 if (!empty($detail)) {
                     $product[$item['id']] = $detail;
@@ -51,15 +61,7 @@ class Home extends BaseController
         $data['product'] = $product;
 
         return view('v_profile', $data);
-    }
+    } // php spark make:controller ApiController --restful
 
-    public function faq()
-    {
-        return view('v_faq');
-    }
-
-    public function contact()
-    {
-        return view('v_contact');
-    }
+    
 }

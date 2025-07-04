@@ -11,5 +11,4 @@ class TransactionDetailModel extends Model
     protected $allowedFields = [
         'transaction_id', 'product_id', 'jumlah', 'diskon', 'subtotal_harga', 'created_at', 'updated_at'
     ];
-
 }

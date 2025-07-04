@@ -7,7 +7,7 @@ use Dompdf\Dompdf;
 
 class ProdukController extends BaseController
 {
-    protected $product; 
+    protected $product;
 
     function __construct()
     {
@@ -30,7 +30,7 @@ class ProdukController extends BaseController
             'nama' => $this->request->getPost('nama'),
             'harga' => $this->request->getPost('harga'),
             'jumlah' => $this->request->getPost('jumlah'),
-            'created_at' => date("Y-m-d H:i:s")
+            'created_at' => date('Y-m-d H:i:s'),
         ];
 
         if ($dataFoto->isValid()) {
@@ -43,7 +43,7 @@ class ProdukController extends BaseController
 
         return redirect('produk')->with('success', 'Data Berhasil Ditambah');
     }
-    
+
     public function edit($id)
     {
         $dataProduk = $this->product->find($id);
@@ -52,12 +52,12 @@ class ProdukController extends BaseController
             'nama' => $this->request->getPost('nama'),
             'harga' => $this->request->getPost('harga'),
             'jumlah' => $this->request->getPost('jumlah'),
-            'updated_at' => date("Y-m-d H:i:s")
+            'updated_at' => date('Y-m-d H:i:s'),
         ];
 
         if ($this->request->getPost('check') == 1) {
-            if ($dataProduk['foto'] != '' and file_exists("img/" . $dataProduk['foto'] . "")) {
-                unlink("img/" . $dataProduk['foto']);
+            if ($dataProduk['foto'] != '' and file_exists('img/' . $dataProduk['foto'] . '')) {
+                unlink('img/' . $dataProduk['foto']);
             }
 
             $dataFoto = $this->request->getFile('foto');
@@ -78,8 +78,8 @@ class ProdukController extends BaseController
     {
         $dataProduk = $this->product->find($id);
 
-        if ($dataProduk['foto'] != '' and file_exists("img/" . $dataProduk['foto'] . "")) {
-            unlink("img/" . $dataProduk['foto']);
+        if ($dataProduk['foto'] != '' and file_exists('img/' . $dataProduk['foto'] . '')) {
+            unlink('img/' . $dataProduk['foto']);
         }
 
         $this->product->delete($id);
@@ -89,13 +89,13 @@ class ProdukController extends BaseController
 
     public function download()
     {
-            //get data from database
+        //get data from database
         $product = $this->product->findAll();
 
-            //pass data to file view
+        //pass data to file view
         $html = view('v_produkPDF', ['product' => $product]);
 
-            //set the pdf filename
+        //set the pdf filename
         $filename = date('y-m-d-H-i-s') . '-produk';
 
         // instantiate and use the dompdf class

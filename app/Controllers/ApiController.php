@@ -5,24 +5,31 @@ namespace App\Controllers;
 use CodeIgniter\HTTP\ResponseInterface;
 use CodeIgniter\RESTful\ResourceController;
 
+// Tahapan 2
 use App\Models\UserModel;
 use App\Models\TransactionModel;
 use App\Models\TransactionDetailModel;
+use App\Models\ProductModel;
 
 class ApiController extends ResourceController
 {
+    // Tahapan 2
     protected $apiKey;
     protected $user;
     protected $transaction;
     protected $transaction_detail;
+    protected $product;
 
     function __construct()
     {
+        // Tahapan 2
         $this->apiKey = env('API_KEY');
         $this->user = new UserModel();
         $this->transaction = new TransactionModel();
         $this->transaction_detail = new TransactionDetailModel();
+        $this->product = new ProductModel();
     }
+
     /**
      * Return an array of resource objects, themselves in array format.
      *
@@ -30,30 +37,51 @@ class ApiController extends ResourceController
      */
     public function index()
     {
-        $data = [ 
+        $data = [
             'results' => [],
             'status' => ["code" => 401, "description" => "Unauthorized"]
         ];
 
-        $headers = $this->request->headers(); 
+        $headers = $this->request->headers();
 
         array_walk($headers, function (&$value, $key) {
             $value = $value->getValue();
         });
 
-        if(array_key_exists("Key", $headers)){
+        if (array_key_exists("Key", $headers)) {
             if ($headers["Key"] == $this->apiKey) {
                 $penjualan = $this->transaction->findAll();
-                
+
                 foreach ($penjualan as &$pj) {
-                    $pj['details'] = $this->transaction_detail->where('transaction_id', $pj['id'])->findAll();
+                    // Ambil detail transaksi
+                    $details = $this->transaction_detail->where('transaction_id', $pj['id'])->findAll();
+                    
+                    // Hitung total item dan total diskon
+                    $totalItem = 0;
+                    $totalDiskon = 0;
+                    
+                    foreach ($details as &$detail) {
+                        // Ambil data produk untuk setiap detail
+                        $produk = $this->product->find($detail['product_id']);
+                        if ($produk) {
+                            $detail['nama_produk'] = $produk['nama'];
+                            $detail['foto_produk'] = $produk['foto'];
+                            $detail['harga_produk'] = $produk['harga'];
+                        }
+                        
+                        $totalItem += $detail['jumlah'];
+                        $totalDiskon += $detail['diskon'] * $detail['jumlah'];
+                    }
+                    
+                    $pj['details'] = $details;
+                    $pj['total_item'] = $totalItem;
+                    $pj['total_diskon'] = $totalDiskon;
                 }
 
                 $data['status'] = ["code" => 200, "description" => "OK"];
                 $data['results'] = $penjualan;
-
             }
-        } 
+        }
 
         return $this->respond($data);
     }
@@ -126,3 +154,5 @@ class ApiController extends ResourceController
         //
     }
 }
+
+// and then make folder dashboard-toko and index.php file in it
