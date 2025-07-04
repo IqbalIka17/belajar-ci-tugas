@@ -9,7 +9,7 @@
 
 **Aplikasi e-commerce modern dengan manajemen produk, sistem diskon dinamis, keranjang belanja, dan integrasi API pengiriman real-time**
 
-[📖 Dokumentasi](#dokumentasi) • [🚀 Quick Start](#quick-start) • [✨ Fitur](#fitur-utama) • [🛠️ Instalasi](#instalasi-lengkap) • [📱 Demo](#demo)
+[🚀 Quick Start](#quick-start) • [✨ Fitur](#fitur-utama) • [🛠️ Instalasi](#instalasi-lengkap) 
 
 </div>
 
@@ -24,13 +24,6 @@
 - [Instalasi Lengkap](#instalasi-lengkap)
 - [Konfigurasi](#konfigurasi)
 - [Struktur Proyek](#struktur-proyek)
-- [API Documentation](#api-documentation)
-- [Penggunaan](#penggunaan)
-- [Screenshots](#screenshots)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [Roadmap](#roadmap)
-- [Lisensi](#lisensi)
 
 ---
 
@@ -143,7 +136,7 @@
 
 **Backend**
 
-- CodeIgniter 4.3+
+- CodeIgniter 4+
 - PHP 8.1+
 - MySQL 8.0+
 - Composer
@@ -166,9 +159,7 @@
 **Tools & Services**
 
 - RajaOngkir API
-- GitHub Actions (CI/CD)
-- Docker Support
-- VS Code Extensions
+- Xampp ( Apache, Mysql )
 
 </td>
 </tr>
@@ -184,14 +175,14 @@
 ✅ PHP >= 8.1
 ✅ MySQL >= 8.0
 ✅ Composer
-✅ Apache/Nginx dengan mod_rewrite
+✅ Apache/Nginx 
 ```
 
 ### Installation dalam 3 Langkah
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/username/belajar-ci.git
+git clone https://github.com/IqbalIka17/belajar-ci-tugas.git
 cd belajar-ci
 
 # 2. Install dependencies
@@ -302,34 +293,6 @@ app.baseURL = 'http://localhost:8080/'
 app.appTimezone = 'Asia/Jakarta'
 app.sessionExpiration = 7200
 ```
-
-### 6. Web Server Configuration
-
-#### Apache (.htaccess)
-
-```apache
-RewriteEngine On
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L]
-```
-
-#### Nginx
-
-```nginx
-location / {
-    try_files $uri $uri/ /index.php?$args;
-}
-
-location ~ \.php$ {
-    fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
-    fastcgi_index index.php;
-    include fastcgi_params;
-    fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-}
-```
-
----
 
 ## 🏗️ Struktur Proyek
 
@@ -512,30 +475,6 @@ curl -X GET \
 }
 ```
 
-#### ❌ Error Responses
-
-```json
-{
-  "status": {
-    "code": 401,
-    "description": "Unauthorized"
-  },
-  "results": []
-}
-```
-
-```json
-{
-  "status": {
-    "code": 404,
-    "description": "Transaction not found"
-  },
-  "results": []
-}
-```
-
----
-
 ## 📱 Penggunaan
 
 ### 1. Login sebagai Admin
@@ -566,123 +505,6 @@ curl -X GET \
 
 ---
 
-## 📸 Screenshots
-
-<details>
-<summary>🖼️ Klik untuk melihat screenshots</summary>
-
-### Login Page
-
-![Login](https://via.placeholder.com/800x400?text=Login+Page)
-
-### Product Catalog
-
-![Products](https://via.placeholder.com/800x400?text=Product+Catalog)
-
-### Shopping Cart
-
-![Cart](https://via.placeholder.com/800x400?text=Shopping+Cart)
-
-### Admin Dashboard
-
-![Dashboard](https://via.placeholder.com/800x400?text=Admin+Dashboard)
-
-### Discount Management
-
-![Discount](https://via.placeholder.com/800x400?text=Discount+Management)
-
-### External Dashboard
-
-![External](https://via.placeholder.com/800x400?text=External+Dashboard)
-
-</details>
-
----
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-<details>
-<summary>❌ Database Connection Error</summary>
-
-**Problem:** `Unable to connect to database`
-
-**Solution:**
-
-1. Check `.env` database configuration
-2. Ensure MySQL service is running
-3. Verify database exists and credentials are correct
-4. Test connection manually:
-
-```bash
-mysql -u username -p -h localhost database_name
-```
-
-</details>
-
-<details>
-<summary>❌ File Upload Issues</summary>
-
-**Problem:** `Cannot upload product images`
-
-**Solution:**
-
-1. Check folder permissions:
-
-```bash
-chmod -R 755 public/img/
-```
-
-2. Verify PHP upload settings in `php.ini`:
-
-```ini
-upload_max_filesize = 10M
-post_max_size = 10M
-```
-
-</details>
-
-<details>
-<summary>❌ RajaOngkir API Error</summary>
-
-**Problem:** `Shipping cost calculation failed`
-
-**Solution:**
-
-1. Verify API key in `.env`
-2. Check RajaOngkir account status
-3. Ensure internet connection is stable
-4. Test API manually:
-
-```bash
-curl -H "key: your-api-key" https://rajaongkir.komerce.id/api/v1/cost
-```
-
-</details>
-
-<details>
-<summary>❌ Session Issues</summary>
-
-**Problem:** `Login session expires immediately`
-
-**Solution:**
-
-1. Check session configuration in `.env`:
-
-```env
-app.sessionDriver = 'files'
-app.sessionExpiration = 7200
-```
-
-2. Verify `writable/session/` permissions:
-
-```bash
-chmod -R 755 writable/session/
-```
-
-</details>
-
 ### Debug Mode
 
 Enable debug mode untuk development:
@@ -693,13 +515,6 @@ CI_ENVIRONMENT = development
 app.forceGlobalSecureRequests = false
 ```
 
-View logs:
-
-```bash
-tail -f writable/logs/log-*.log
-```
-
----
 
 ## 🤝 Contributing
 
