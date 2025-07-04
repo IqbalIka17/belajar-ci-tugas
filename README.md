@@ -59,7 +59,7 @@
 ```
 ✅ CRUD produk dengan kategori
 ✅ Upload & validasi gambar produk
-✅ Export data produk ke Excel/PDF
+✅ Export data produk ke PDF
 ✅ Pencarian dan filtering produk
 ✅ Stock management (coming soon)
 ```
@@ -91,7 +91,7 @@
 ```
 ✅ Integrasi RajaOngkir API
 ✅ Pencarian lokasi dengan autocomplete
-✅ Multiple courier options (JNE, TIKI, POS)
+✅ Multiple courier options 
 ✅ Real-time shipping cost calculation
 ✅ Estimasi waktu pengiriman
 ```
@@ -102,8 +102,6 @@
 ✅ Comprehensive checkout process
 ✅ Transaction detail dengan discount tracking
 ✅ Order history untuk customer
-✅ Transaction status management
-✅ Invoice generation (PDF ready)
 ```
 
 ### 📊 Dashboard & Analytics
@@ -112,18 +110,14 @@
 ✅ Admin dashboard untuk management
 ✅ External dashboard dengan API consumption
 ✅ Real-time transaction monitoring
-✅ Sales analytics dan reporting
-✅ Auto-refresh data setiap 30 detik
 ```
 
 ### 🔌 API & Integration
 
 ```
-✅ RESTful API dengan authentication
 ✅ JSON response format yang konsisten
-✅ API key authentication
+✅ API key untuk pengiriman
 ✅ External dashboard integration
-✅ Webhook ready untuk payment gateway
 ```
 
 ---
@@ -137,8 +131,8 @@
 **Backend**
 
 - CodeIgniter 4+
-- PHP 8.1+
-- MySQL 8.0+
+- PHP 8.0+
+- MySQL
 - Composer
 - Guzzle HTTP Client
 
@@ -147,8 +141,8 @@
 
 **Frontend**
 
-- Bootstrap 5.3
-- jQuery 3.6
+- Bootstrap 
+- jQuery
 - Select2 Plugin
 - DataTables
 - Bootstrap Icons
@@ -172,7 +166,7 @@
 ### Prerequisites
 
 ```bash
-✅ PHP >= 8.1
+✅ PHP >= 8.0
 ✅ MySQL >= 8.0
 ✅ Composer
 ✅ Apache/Nginx 
@@ -224,8 +218,8 @@ Password: 1234567
 
 | Component  | Minimum                                 | Recommended      |
 | ---------- | --------------------------------------- | ---------------- |
-| PHP        | 8.1                                     | 8.2+             |
-| MySQL      | 8.0                                     | 8.0+             |
+| PHP        | 8.0                                     | 8.0              |
+| MySQL      | 8.0                                     | 8.0              |
 | Memory     | 512MB                                   | 1GB+             |
 | Extensions | intl, mbstring, json, mysqlnd, curl, gd | + opcache, redis |
 
@@ -233,7 +227,7 @@ Password: 1234567
 
 ```bash
 # Clone project
-git clone https://github.com/username/belajar-ci.git
+git clone https://github.com/IqbalIka17/belajar-ci-tugas.git
 cd belajar-ci
 
 # Install Composer dependencies
@@ -249,9 +243,6 @@ chmod -R 755 public/img/
 ```bash
 # Copy environment template
 cp env .env
-
-# Generate application key (optional)
-php spark key:generate
 ```
 
 ### 4. Database Setup
@@ -335,6 +326,8 @@ belajar-ci/
 │   │   ├── 📄 v_keranjang.php     # Shopping cart
 │   │   ├── 📄 v_checkout.php      # Checkout process
 │   │   ├── 📄 v_profile.php       # Order history
+│   │   ├── 📄 v_contact.php       # Halaman Contact
+│   │   ├── 📄 v_produkPDF.php     # Halaman PDF
 │   │   └── 📄 v_faq.php           # FAQ page
 │   │
 │   ├── 📁 Database/                 # Database related
